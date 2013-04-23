@@ -236,13 +236,14 @@ class MigrationVersion {
 		$db =& ConnectionManager::getDataSource($this->connection);
 		if (!in_array($db->fullTableName('schema_migrations', false), $db->listSources())) {
 			$map = $this->__loadFile('map', 'migrations');
+			if ($map) {
+				list($name, $class) = each($map[1]);
+				$migration = $this->getMigration($name, $class, 'migrations');
+				$migration->run('up');
 
-			list($name, $class) = each($map[1]);
-			$migration = $this->getMigration($name, $class, 'migrations');
-			$migration->run('up');
-
-			$this->Version =& ClassRegistry::init($options);
-			$this->setVersion(1, 'migrations');
+				$this->Version =& ClassRegistry::init($options);
+				$this->setVersion(1, 'migrations');
+			}
 		} else {
 			$this->Version =& ClassRegistry::init($options);
 		}
